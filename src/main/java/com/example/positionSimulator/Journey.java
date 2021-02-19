@@ -62,7 +62,7 @@ public class Journey implements Callable<Object> {
 			
 			//broadcast this message
 			try {
-				jmsTemplate.convertAndSend("VehiclePositionQueue", positionMessage);
+				jmsTemplate.convertAndSend("positionQueue", positionMessage);
 				messageNotSent = false;
 				
 			}catch(UncategorizedJmsException e) {

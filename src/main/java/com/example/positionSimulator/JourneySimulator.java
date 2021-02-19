@@ -105,14 +105,10 @@ public class JourneySimulator implements Runnable {
 		{
 			throw new RuntimeException(e);
 		}
-	}
-
-
-	
+	}	
 
 	public void finish() {
-		threadPool.shutdownNow();
-		
+		threadPool.shutdownNow();		
 	}
 
 }
