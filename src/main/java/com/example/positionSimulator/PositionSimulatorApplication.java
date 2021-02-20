@@ -29,93 +29,79 @@ public class PositionSimulatorApplication {
 
 	private static Map<String, List<String>> reports;
 
-	public static void main(String[] args) throws IOException 
-	{
+	public static void main(String[] args) throws IOException {
 		setUpAllData();
 
-		try (ConfigurableApplicationContext ctx = SpringApplication.run(PositionSimulatorApplication.class, args)) 
-		{
+		try (ConfigurableApplicationContext ctx = SpringApplication.run(PositionSimulatorApplication.class, args)) {
 			JmsTemplate template = ctx.getBean(JmsTemplate.class);
-			while (!reports.isEmpty())
-			{
-				for (String vehicleName : reports.keySet())
-				{
+			while (!reports.isEmpty()) {
+				for (String vehicleName : reports.keySet()) {
 					// get a report from each - if the reports are exhausted, remove that vehicle.
 					List<String> thisVehiclesReports = reports.get(vehicleName);
 					String report = thisVehiclesReports.remove(0);
-					
-					if (thisVehiclesReports.isEmpty()) 
-					{
+
+					if (thisVehiclesReports.isEmpty()) {
 						reports.remove(vehicleName);
-						System.out.println(vehicleName +" has now completed its journey. Having a tea break.");
+						System.out.println(vehicleName + " has now completed its journey. Having a tea break.");
 						if (reports.isEmpty()) {
 							System.out.println("All vehicles back at the start - get moving again");
 							setUpAllData();
 						}
 					}
-					
+
 					String[] data = report.split("\"");
 					String lat = data[1];
 					String longitude = data[3];
-									
-					// Spring will convert a HashMap into a MapMessage using the default MessageConverter.
-					HashMap<String,String> positionMessage = new HashMap<>();
+
+					// Spring will convert a HashMap into a MapMessage using the default
+					// MessageConverter.
+					HashMap<String, String> positionMessage = new HashMap<>();
 					positionMessage.put("vehicle", vehicleName);
-					positionMessage.put("lat", lat);
-					positionMessage.put("long", longitude);
+					positionMessage.put("latitude", lat);
+					positionMessage.put("longitude", longitude);
 					positionMessage.put("time", new java.util.Date().toString());
 
 					boolean messageNotSent = true;
-					while (messageNotSent)
-					{
+					while (messageNotSent) {
 						// broadcast this report
-						try
-						{
-							template.convertAndSend("positionQueue",positionMessage);
+						try {
+							template.convertAndSend("VehiclePositionQueue", positionMessage);
 							messageNotSent = false;
-						}
-						catch (UncategorizedJmsException e)
-						{
+						} catch (UncategorizedJmsException e) {
 							// we are going to assume that this is due to downtime - back off and go again
 							System.out.println("Queue unavailable - backing off 5000ms before retry");
 							delay(5000);
 						}
 					}
-				}				
+				}
 				delay(300);
 			}
 		}
 	}
 
-	private static void setUpAllData() throws IOException
-	{
+	private static void setUpAllData() throws IOException {
 		reports = new ConcurrentHashMap<>();
 		PathMatchingResourcePatternResolver path = new PathMatchingResourcePatternResolver();
 
-		for (Resource nextFile : path.getResources("tracks/*"))
-		{
+		for (Resource nextFile : path.getResources("tracks/*")) {
 			String vehicleName = nextFile.getFilename();
 
-			try (Scanner sc = new Scanner(nextFile.getFile()))
-			{
+			try (Scanner sc = new Scanner(nextFile.getFile())) {
 				List<String> thisVehicleReports = new ArrayList<>();
-				while (sc.hasNextLine())
-				{
+				while (sc.hasNextLine()) {
 					String nextReport = sc.nextLine();
 					thisVehicleReports.add(nextReport);
 				}
-				reports.put(vehicleName,thisVehicleReports);
+				reports.put(vehicleName, thisVehicleReports);
 			}
 		}
 	}
 
 	private static void delay(int millis) {
-		try 
-		{
+		try {
 			Thread.sleep(millis);
-		}
-		catch (InterruptedException e1) 
-		{
+
+		} catch (InterruptedException e1) {
 		}
 	}
 }

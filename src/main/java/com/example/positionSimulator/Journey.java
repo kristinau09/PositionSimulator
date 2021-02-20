@@ -38,7 +38,7 @@ public class Journey implements Callable<Object> {
 			HashMap<String, String> positionMessage = new HashMap<>();
 			positionMessage.put("vehicle", vehicleName);
 			positionMessage.put("latitude", latitude);
-			positionMessage.put("long", longitude);
+			positionMessage.put("longitude", longitude);
 			positionMessage.put("time", new java.util.Date().toString());
 			
 			sendToQueue(positionMessage);
@@ -62,12 +62,12 @@ public class Journey implements Callable<Object> {
 			
 			//broadcast this message
 			try {
-				jmsTemplate.convertAndSend("positionQueue", positionMessage);
+				jmsTemplate.convertAndSend("VehiclePositionQueue", positionMessage);
 				messageNotSent = false;
 				
 			}catch(UncategorizedJmsException e) {
 				//we are going to assume thta this is due to downtime - back off and go again
-				System.out.println("Queue unavailable - backing off 500ms before retry");
+				System.out.println("\"VehiclePositionQueue\" Queue unavailable - backing off 500ms before retry");
 				delay(500);
 			}
 			

@@ -72,8 +72,7 @@ public class JourneySimulator implements Runnable {
 	}
 
 	/**
-	 * Read the data from the resources directory - should work for an executable Jar as
-	 * well as through direct execution
+	 * Read the data from the resources directory - tracks folder
 	 */
 	private Map<String, List<String>> setUpData() 
 	{
