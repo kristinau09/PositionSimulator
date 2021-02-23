@@ -36,10 +36,10 @@
 		</dependency>
 		
 		<!-- For developer tools -->
-		<dependency>
+		<!-- <dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-devtools</artifactId>
-		</dependency>
+		</dependency> -->
 	</dependencies>
 
 	<build>
@@ -55,7 +55,7 @@
 				<filtering>true</filtering>
 				<directory>src/main/resources</directory>
 				<includes>
-					<include>application.properties</include>
+					<include>*.properties</include>
 					<include>tracks/*</include>					
 				</includes>
 			</resource>		
